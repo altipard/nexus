@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: nexus
+  profiles:
+    active: local
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nexus
+    username: nexus
+    password: nexus
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: password123
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+
+logging:
+  level:
+    de.zilicon.nexus: DEBUG
+    org.springframework.data.neo4j: DEBUG
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  info:
+    title: Nexus Core API
+    description: Nexus Core System API Documentation
+    version: 0.0.1-SNAPSHOT

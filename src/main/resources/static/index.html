@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS - Banking Core System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 0.05; }
+            50% { opacity: 0.1; }
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00; }
+            50% { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00, 0 0 50px #00ff00; }
+        }
+
+        @keyframes colorCycle {
+            0%, 100% { color: #00ff00; }
+            25% { color: #00ffff; }
+            50% { color: #0088ff; }
+            75% { color: #00ffff; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        body {
+            background: #000;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* CRT Effect */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Scanline */
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 255, 0, 0.1);
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Screen flicker */
+        .screen {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at center, #001100 0%, #000000 100%);
+        }
+
+        .screen::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 255, 0, 0.02);
+            animation: flicker 0.15s infinite;
+            pointer-events: none;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ASCII Art Logo */
+        .logo {
+            font-size: 14px;
+            line-height: 1.2;
+            font-weight: bold;
+            white-space: pre;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+            animation: glow 2s ease-in-out infinite;
+            margin-bottom: 30px;
+            font-family: monospace;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            margin-bottom: 40px;
+            animation: colorCycle 4s linear infinite;
+            letter-spacing: 4px;
+        }
+
+        .status-panel {
+            margin-top: 40px;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            background: rgba(0, 255, 0, 0.05);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .status-title {
+            font-size: 16px;
+            color: #00ffff;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .status-label {
+            color: #00ff00;
+        }
+
+        .status-value {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .status-online {
+            color: #00ff00;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-offline {
+            color: #ff0000;
+        }
+
+        .menu {
+            margin-top: 30px;
+        }
+
+        .menu-item {
+            display: inline-block;
+            color: #00ffff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 12px 25px;
+            border: 2px solid #00ffff;
+            transition: all 0.3s;
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+            transform: translateY(-2px);
+        }
+
+        .menu-item::before {
+            content: "▶ ";
+            position: absolute;
+            left: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .menu-item:hover::before {
+            opacity: 1;
+        }
+
+        .version {
+            color: #00ff00;
+            font-size: 12px;
+            margin-top: 30px;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: #00ff00;
+            opacity: 0.6;
+        }
+
+        /* Grid effect */
+        .grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(0deg, transparent 24%, rgba(0, 255, 0, 0.05) 25%, rgba(0, 255, 0, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 0, 0.05) 75%, rgba(0, 255, 0, 0.05) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(0, 255, 0, 0.05) 25%, rgba(0, 255, 0, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 0, 0.05) 75%, rgba(0, 255, 0, 0.05) 76%, transparent 77%, transparent);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="crt">
+    <div class="scanline"></div>
+    <div class="grid"></div>
+    <div class="screen">
+        <div class="container">
+            <pre class="logo">
+███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗
+████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝
+██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║███████╗
+██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║
+██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║
+╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
+            </pre>
+
+            <div class="subtitle">
+                [ DEPENDENCY CORE SYSTEM ]
+            </div>
+
+            <div class="status-panel">
+                <div class="status-title">SYSTEM STATUS</div>
+
+                <div class="status-item">
+                    <span class="status-label">OVERALL:</span>
+                    <span class="status-value" id="overall-status">CHECKING...</span>
+                </div>
+
+                <div class="status-item">
+                    <span class="status-label">POSTGRESQL:</span>
+                    <span class="status-value" id="postgres-status">CHECKING...</span>
+                </div>
+
+                <div class="status-item">
+                    <span class="status-label">NEO4J:</span>
+                    <span class="status-value" id="neo4j-status">CHECKING...</span>
+                </div>
+            </div>
+
+            <div class="menu">
+                <a href="/swagger-ui.html" class="menu-item">[ API DOCUMENTATION ]</a>
+                <a href="http://localhost:7474" target="_blank" class="menu-item" style="margin-left: 20px;">[ NEO4J BROWSER ]</a>
+            </div>
+
+            <div class="version" id="version-info">
+                Loading... | POSTGRESQL + NEO4J | © <span id="year"></span>
+            </div>
+        </div>
+
+        <div class="footer" id="footer">
+            PRESS ANY KEY TO CONTINUE... | READY.
+        </div>
+    </div>
+
+    <script>
+        // Set current year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Fetch app version
+        async function fetchVersion() {
+            try {
+                const response = await fetch('/api/info');
+                const info = await response.json();
+                const versionDiv = document.getElementById('version-info');
+                versionDiv.innerHTML = `v${info.version} | POSTGRESQL + NEO4J | © <span id="year">${new Date().getFullYear()}</span>`;
+            } catch (error) {
+                console.error('Failed to fetch version:', error);
+                const versionDiv = document.getElementById('version-info');
+                versionDiv.innerHTML = `v0.0.1-SNAPSHOT | POSTGRESQL + NEO4J | © <span id="year">${new Date().getFullYear()}</span>`;
+            }
+        }
+
+        // Fetch health status
+        async function checkHealth() {
+            try {
+                const response = await fetch('/actuator/health');
+                const health = await response.json();
+
+                const overallStatus = health.status || 'UNKNOWN';
+                const postgresStatus = health.components?.db?.status || 'UNKNOWN';
+                const neo4jStatus = health.components?.neo4j?.status || 'UNKNOWN';
+
+                // Update overall status
+                const overallEl = document.getElementById('overall-status');
+                overallEl.textContent = overallStatus;
+                overallEl.className = overallStatus === 'UP' ? 'status-value status-online' : 'status-value status-offline';
+
+                // Update PostgreSQL status
+                const postgresEl = document.getElementById('postgres-status');
+                postgresEl.textContent = postgresStatus === 'UP' ? 'ONLINE' : 'OFFLINE';
+                postgresEl.className = postgresStatus === 'UP' ? 'status-value status-online' : 'status-value status-offline';
+
+                // Update Neo4j status
+                const neo4jEl = document.getElementById('neo4j-status');
+                neo4jEl.textContent = neo4jStatus === 'UP' ? 'ONLINE' : 'OFFLINE';
+                neo4jEl.className = neo4jStatus === 'UP' ? 'status-value status-online' : 'status-value status-offline';
+
+            } catch (error) {
+                console.error('Failed to fetch health status:', error);
+                const overallEl = document.getElementById('overall-status');
+                const postgresEl = document.getElementById('postgres-status');
+                const neo4jEl = document.getElementById('neo4j-status');
+
+                overallEl.textContent = 'ERROR';
+                overallEl.className = 'status-value status-offline';
+                postgresEl.textContent = 'ERROR';
+                postgresEl.className = 'status-value status-offline';
+                neo4jEl.textContent = 'ERROR';
+                neo4jEl.className = 'status-value status-offline';
+            }
+        }
+
+        // Fetch version and check health on load
+        fetchVersion();
+        checkHealth();
+        setInterval(checkHealth, 5000);
+
+        // Simulate "READY" blinking cursor
+        let footer = document.getElementById('footer');
+        setInterval(() => {
+            footer.style.opacity = footer.style.opacity === '0' ? '0.6' : '0';
+        }, 500);
+    </script>
+</body>
+</html>

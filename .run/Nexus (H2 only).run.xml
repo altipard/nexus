@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Nexus (H2 only)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="nexus.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="de.zilicon.nexus.NexusApplicationKt" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <option name="SHORTEN_COMMAND_LINE" value="NONE" />
+    <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="de.zilicon.nexus.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
