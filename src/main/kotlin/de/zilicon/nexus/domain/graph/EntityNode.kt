@@ -76,7 +76,7 @@ data class EntityNode(
     /**
      * Outgoing relationships from this entity
      */
-    @Relationship(type = "RELATED_TO", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "DEPENDS_ON", direction = Relationship.Direction.OUTGOING)
     val dependencies: List<DependencyRelationship> = emptyList()
 ) {
     /**

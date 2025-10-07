@@ -31,7 +31,7 @@ interface EntityRepository : Neo4jRepository<EntityNode, String> {
      * @return List of dependent entities
      */
     @Query("""
-        MATCH (source:Entity {id: ${'$'}entityId})-[:DEPENDS_ON*1..${'$'}depth]->(dep:Entity)
+        MATCH (source:Entity {id: ${'$'}entityId})-[:DEPENDS_ON*1..]->(dep:Entity)
         RETURN DISTINCT dep
     """)
     fun findDependencies(entityId: String, depth: Int = 5): List<EntityNode>

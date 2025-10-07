@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: nexus-test
+
+  # Neo4j Configuration for Testing
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: password123
+
+  # H2 In-Memory Database for Testing (replacing PostgreSQL)
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: false
+    show-sql: false
+
+  h2:
+    console:
+      enabled: false
+
+  data:
+    neo4j:
+      database: neo4j
+
+# Logging
+logging:
+  level:
+    de.zilicon.nexus: INFO
+    org.springframework: WARN
+    org.neo4j: WARN
+    org.hibernate: WARN

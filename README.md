@@ -1,73 +1,64 @@
-# Nexus - Dependency Core System
+# Nexus - Dependency & Resource Management System
 
-A Spring Boot application with PostgreSQL and Neo4j dual-database architecture for dependency management.
+Enterprise-grade dependency and resource management engine for Banking IT environments.
 
-## Current Implementation
+## 🚀 Quick Start
 
-This project is in early development. Currently implemented:
+### Prerequisites
+- Java 21+
+- Docker Desktop (for PostgreSQL + Neo4j)
 
-- Spring Boot 3.2.2 with Kotlin 1.9.22
-- PostgreSQL database integration
-- Neo4j graph database integration
-- Docker Compose setup for local development
-- Health monitoring endpoint
-- Swagger UI for API documentation
-- Neo4j domain model (EntityNode, DependencyRelationship)
-- Spring Data Neo4j repositories with Cypher queries
-
-## Technology Stack
-
-**Backend:**
-- Kotlin 1.9.22
-- Spring Boot 3.2.2
-- Spring Data JPA (PostgreSQL)
-- Spring Data Neo4j
-- Gradle 8.x with Kotlin DSL
-
-**Databases:**
-- PostgreSQL 15+ (event store, metadata)
-- Neo4j 5.x (graph database)
-
-**Infrastructure:**
-- Docker Compose
-- Java 21
-
-## Prerequisites
-
-- Java 21 or later
-- Docker and Docker Compose
-- Gradle 8.x (or use included wrapper)
-
-## Getting Started
-
-### 1. Start Database Services
+### Option 1: Quick Start with H2 (No Docker)
 
 ```bash
-docker compose up -d
+# Simple in-memory database
+./start.sh
 ```
 
-This starts:
-- PostgreSQL on port 5432 (credentials: nexus/nexus)
-- Neo4j on ports 7474 (HTTP) and 7687 (Bolt) (credentials: neo4j/password123)
+Access at http://localhost:8080
 
-### 2. Build the Application
+### Option 2: Full Stack with Docker (PostgreSQL + Neo4j)
 
 ```bash
-./gradlew clean build
+# Start PostgreSQL + Neo4j + Application
+./start-local.sh
+
+# Stop databases
+./stop-local.sh
 ```
 
-### 3. Run the Application
+**What it starts:**
+- ✅ PostgreSQL on `localhost:5432`
+- ✅ Neo4j on `localhost:7474` (Browser) and `localhost:7687` (Bolt)
+- ✅ Spring Boot on `localhost:8080`
+
+### 2. Verify
 
 ```bash
-./gradlew bootRun
+# Health endpoint
+curl http://localhost:8080/api/health
+
+# Neo4j Browser
+open http://localhost:7474
+# Username: neo4j
+# Password: password123
 ```
 
-### 4. Access the Application
+### 3. Manual Docker Commands
 
-- **Web UI**: http://localhost:8080
-- **API Docs**: http://localhost:8080/swagger-ui.html
-- **Neo4j Browser**: http://localhost:7474
-- **Health Check**: http://localhost:8080/actuator/health
+```bash
+# Start databases only
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop databases
+docker-compose down
+
+# Stop and delete data
+docker-compose down -v
+```
 
 ## Project Structure
 
@@ -77,148 +68,68 @@ nexus/
 │   ├── main/
 │   │   ├── kotlin/
 │   │   │   └── com/bank/nexus/
-│   │   │       ├── controller/
-│   │   │       │   └── AppInfoController.kt
-│   │   │       ├── domain/
-│   │   │       │   └── graph/
-│   │   │       │       ├── Criticality.kt
-│   │   │       │       ├── DependencyRelationship.kt
-│   │   │       │       ├── EntityNode.kt
-│   │   │       │       └── Visibility.kt
-│   │   │       └── repository/
-│   │   │           └── EntityRepository.kt
+│   │   │       ├── NexusApplication.kt
+│   │   │       └── controller/
 │   │   └── resources/
-│   │       ├── application.yml
-│   │       ├── application-local.yml
-│   │       └── static/
-│   │           └── index.html
+│   │       └── application.yml
 │   └── test/
 ├── build.gradle.kts
-├── docker-compose.yml
-└── README.md
+└── settings.gradle.kts
 ```
 
-## Domain Model
+## Technology Stack
 
-### EntityNode
+- **Language**: Kotlin 1.9.22
+- **Framework**: Spring Boot 3.2.2
+- **Build**: Gradle 8.x (Kotlin DSL)
+- **Java**: 21
+- **Database (MVP)**: H2 in-memory
+- **Database (Production)**: PostgreSQL 15 + Neo4j 5
+- **API**: REST (Spring MVC)
 
-Generic graph entity that can represent any domain object:
+## MVP Development Roadmap
 
-```kotlin
-@Node("Entity")
-data class EntityNode(
-    val id: String?,                    // Auto-generated UUID
-    val type: String,                   // Entity type (e.g., "Project", "Team")
-    val properties: Map<String, Any>,   // Dynamic properties
-    val owner: String,                  // Owner user/department
-    val readers: List<String>,          // Read access list
-    val writers: List<String>,          // Write access list
-    val visibility: Visibility          // Access control level
-)
-```
+### ✅ Phase 0: Minimal Setup (DONE)
+- [x] Spring Boot project structure
+- [x] H2 in-memory database
+- [x] Health check endpoint
+- [x] Build & run successfully
 
-### DependencyRelationship
+### 🔄 Phase 1: Core Domain (Week 1)
+- [ ] Create domain models (Project, Team, User, Skill)
+- [ ] Add JPA repositories
+- [ ] Implement REST CRUD endpoints
+- [ ] Add sample data initializer
 
-Relationship between entities:
+### 🔄 Phase 2: Graph Visualization (Week 2)
+- [ ] Add graph data structures
+- [ ] Create graph API endpoints
+- [ ] (Frontend) Cytoscape.js integration
+- [ ] Interactive dependency visualization
 
-```kotlin
-@RelationshipProperties
-data class DependencyRelationship(
-    val id: String?,
-    val type: String,                   // Relationship type
-    val properties: Map<String, Any>,   // Metadata
-    val criticality: Criticality,       // LOW, MEDIUM, HIGH, BLOCKING
-    val target: EntityNode
-)
-```
+### 🔄 Phase 3: AI Integration (Week 3)
+- [ ] Integrate Ollama
+- [ ] Natural language query endpoint
+- [ ] Query translation (NL → Domain queries)
+- [ ] Chat interface
 
-### Visibility Levels
+### 🔄 Phase 4: Dashboard & Analytics (Week 4)
+- [ ] Analytics algorithms (bottlenecks, gaps)
+- [ ] Dashboard API endpoints
+- [ ] CSV import functionality
+- [ ] (Frontend) KPI visualizations
 
-- `PUBLIC` - All authenticated users
-- `DEPARTMENT` - Same department only
-- `RESTRICTED` - Explicit reader list
-- `PRIVATE` - Owner only
+## Production Migration
 
-## Repository Queries
+When ready to move beyond MVP:
 
-The EntityRepository provides Cypher queries for:
+1. **Switch to PostgreSQL**: Update `application.yml`
+2. **Add Neo4j**: Add dependency + configuration
+3. **Add Kafka**: Event sourcing setup
+4. **Add Security**: JWT authentication
+5. **Deploy to OpenShift**: Container deployment
 
-- `findDependencies(entityId, depth)` - Find all dependencies
-- `findDependents(entityId)` - Find reverse dependencies
-- `findBottlenecks(limit)` - Find most critical dependencies
-- `findCircularDependencies()` - Detect circular refs
-- `findShortestPath(sourceId, targetId)` - Shortest dependency path
-- `findAccessibleEntities(userId, dept)` - ACL-filtered queries
+## Documentation
 
-## Configuration
-
-### Database Connections
-
-**PostgreSQL:**
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/nexus
-    username: nexus
-    password: nexus
-```
-
-**Neo4j:**
-```yaml
-spring:
-  neo4j:
-    uri: bolt://localhost:7687
-    authentication:
-      username: neo4j
-      password: password123
-```
-
-### Profiles
-
-- `local` - Local development with Docker (default)
-
-## API Endpoints
-
-Currently implemented:
-
-- `GET /api/info` - Application version information
-- `GET /actuator/health` - Health status (PostgreSQL + Neo4j)
-- `GET /actuator/metrics` - Application metrics
-- `GET /swagger-ui.html` - API documentation
-
-## Development Commands
-
-```bash
-# Clean build
-./gradlew clean build
-
-# Compile Kotlin only
-./gradlew compileKotlin
-
-# Run tests
-./gradlew test
-
-# Run application
-./gradlew bootRun
-
-# Stop databases
-docker compose down
-```
-
-## Database Access
-
-**PostgreSQL:**
-```bash
-docker exec -it nexus-postgres psql -U nexus -d nexus
-```
-
-**Neo4j Browser:**
-```
-Open http://localhost:7474
-Username: neo4j
-Password: password123
-```
-
-## License
-
-Proprietary - All rights reserved.
+- [Architecture](ARCHITECTURE.md) - Full enterprise architecture
+- [MVP Strategy](POTENTIAL.md) - 4-week MVP plan

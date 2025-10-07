@@ -1,11 +1,14 @@
 package de.zilicon.nexus.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.info.BuildProperties
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Tag(name = "Application", description = "Application information and metadata operations")
 class AppInfoController(
     private val buildProperties: BuildProperties?
 ) {
@@ -14,6 +17,7 @@ class AppInfoController(
     private lateinit var appName: String
 
     @GetMapping("/api/info")
+    @Operation(summary = "Get application information")
     fun getAppInfo(): Map<String, String> {
         val version = buildProperties?.version ?: "0.0.1-SNAPSHOT"
         return mapOf(
