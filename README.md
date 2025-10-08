@@ -2,6 +2,8 @@
 
 A graph-based dependency and resource management platform for tracking and analyzing entity relationships and dependencies in complex IT environments.
 
+![Nexus Dashboard](nexus_screenshot.jpg)
+
 ## Overview
 
 Nexus provides a REST API for managing entities and their dependency relationships using a graph database backend. The system enables tracking dependencies between services, databases, APIs, and other IT resources with support for dependency graph traversal, bottleneck detection, and access control.
